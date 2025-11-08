@@ -7,6 +7,8 @@ fn main() -> Result<()> {
     execute!(stdout, EnterAlternateScreen)?;
     enable_raw_mode()?;
     let (width, height): (u16, u16) = size()?;
+    let width = width - 2;
+    let height = height - 2;
     let tile_width = min(height*2, width)/8;
     let mut frame = String::new();
     load_frame(&mut frame, tile_width);
@@ -15,6 +17,8 @@ fn main() -> Result<()> {
     'main_loop: loop {
         match read()? {
             Event::Resize(width, height) => {
+                let width = width - 2;
+                let height = height - 2;
                 let tile_width = min(height*2, width)/8;
                 load_frame(&mut frame, tile_width);
             },
@@ -38,18 +42,29 @@ fn main() -> Result<()> {
 fn load_frame(frame: &mut String, tile_width: u16) {
     frame.clear();
     let mut is_white = true;
+    frame.push('╔');
+    for _ in 0..8*tile_width {
+        frame.push('═')
+    }
+    frame.push_str("╗\n\r");
     for _ in 0..8 {
         for _ in 0..(tile_width/2) {
+            frame.push('║');
             for _ in 0..8 {
                 for _ in 0..tile_width{
                     frame.push(if is_white {'█'} else {' '});
                 }
                 is_white = !is_white;
             }
-            frame.push('\n');
-            frame.push('\r');
+            frame.push_str("║\n\r");
         }
         is_white = !is_white;
     }
+
+    frame.push('╚');
+    for _ in 0..8*tile_width {
+        frame.push('═')
+    }
+    frame.push('╝');
 }
 
